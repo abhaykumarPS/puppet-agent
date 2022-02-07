@@ -54,7 +54,6 @@ test: prep
 		bundle exec --gemfile $$GEMFILE rspec spec
 
 publish:
-	docker buildx build --platform="linux/amd64,linux/arm64" -t abhay900/puppet-agent:latest -f puppet-agent-ubuntu/Dockerfile --push puppet-agent-ubuntu
-	docker buildx build --platform="linux/amd64,linux/arm64" -t abhay900/puppet-agent:latest -f puppet-agent-alpine/Dockerfile --push puppet-agent-alpine
-
+	docker buildx build --platform="linux/amd64,linux/arm64" -t abhay900/puppet-agent:latest -f puppet-agent-ubuntu/Dockerfile --push .
+	
 .PHONY: lint build test publish
