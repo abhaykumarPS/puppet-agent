@@ -53,9 +53,10 @@ test: prep
 		bundle exec --gemfile $$GEMFILE rspec spec
 
 publish: prep
-	@docker push $(NAMESPACE)/puppet-agent-ubuntu:$(version)
+	docker buildx build --platform linux/arm64,linux/amd64 -t abhay900/puppet-agent:latest -f puppet-agent-ubuntu/Dockerfile --push puppet-agent-ubuntu
 	@docker push $(NAMESPACE)/puppet-agent:$(version)
-	@docker push $(NAMESPACE)/puppet-agent-alpine:$(version)
+	docker buildx build --platform linux/arm64,linux/amd64 -t abhay900/puppet-agent:latest -f puppet-agent-ubuntu/Dockerfile --push puppet-agent-alpine
+
 ifeq ($(IS_LATEST),true)
 	@docker push $(NAMESPACE)/puppet-agent-ubuntu:$(LATEST_VERSION)
 	@docker push $(NAMESPACE)/puppet-agent:$(LATEST_VERSION)
