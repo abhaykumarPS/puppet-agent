@@ -35,7 +35,7 @@ endif
 build: 
 	docker pull alpine:$(alpine_version)
 	docker pull ubuntu:$(ubuntu_version)
-	docker buildx build --load ${DOCKER_BUILD_FLAGS} --build-arg ubuntu_version=$(ubuntu_version) --build-arg vcs_ref=$(vcs_ref) --build-arg build_date=$(build_date) --build-arg version=$(version) --file puppet-agent-ubuntu/$(dockerfile) --tag $(NAMESPACE)/puppet-agent-ubuntu:$(version) puppet-agent-ubuntu
+	docker buildx build --load ${DOCKER_BUILD_FLAGS} --build-arg ubuntu_version=$(ubuntu_version) --build-arg vcs_ref=$(vcs_ref) --build-arg build_date=$(build_date) --build-arg version=$(version) --file puppet-agent-ubuntu/$(dockerfile) --tag $(NAMESPACE)/puppet-agent-ubuntu:$(version) 
 	@docker tag $(NAMESPACE)/puppet-agent-ubuntu:$(version) $(NAMESPACE)/puppet-agent:$(version)
 	docker buildx build --load ${DOCKER_BUILD_FLAGS} --build-arg alpine_version=$(alpine_version) --build-arg vcs_ref=$(vcs_ref) --build-arg build_date=$(build_date) --build-arg version=$(version) --file puppet-agent-alpine/$(dockerfile) --tag $(NAMESPACE)/puppet-agent-alpine:$(version) $(PWD)/..
 	
