@@ -38,7 +38,7 @@ build and push:
 	docker buildx use mybuildkit
 	docker buildx inspect --bootstrap
 	docker run --rm --privileged docker/binfmt:66f9012c56a8316f9244ffd7622d7c21c1f6f28d
-	docker buildx build --platform linux/arm64,linux/amd64 -t abhay900/puppetagent:latest -f puppet-agent-ubuntu/Dockerfile --push .
+	docker buildx build --platform linux/arm64,linux/amd64 -t abhay900/puppetagent:latest -f docker/puppet-agent-ubuntu/Dockerfile --push .
 	docker buildx rm mybuildkit
 
 test: prep
