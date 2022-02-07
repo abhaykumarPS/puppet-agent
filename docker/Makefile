@@ -32,7 +32,7 @@ else
 	@docker run --rm -v $(PWD)/puppet-agent-alpine/$(dockerfile):/Dockerfile -i $(hadolint_container) $(hadolint_command) Dockerfile
 endif
 
-build: prep
+build: 
 	docker pull alpine:$(alpine_version)
 	docker pull ubuntu:$(ubuntu_version)
 	docker buildx build --platform linux/arm64,linux/amd64 --build-arg ubuntu_version=$(ubuntu_version) --build-arg vcs_ref=$(vcs_ref) --build-arg build_date=$(build_date) --build-arg version=$(version) --file puppet-agent-ubuntu/$(dockerfile) --tag $(NAMESPACE)/puppet-agent-ubuntu:$(version) puppet-agent-ubuntu
