@@ -1,4 +1,4 @@
-NAMESPACE ?= abhay900
+NAMESPACE ?= puppet
 git_describe = $(shell git describe)
 vcs_ref := $(shell git rev-parse HEAD)
 build_date := $(shell date -u +%FT%T)
@@ -32,8 +32,17 @@ else
 	@docker run --rm -v $(PWD)/puppet-agent-alpine/$(dockerfile):/Dockerfile -i $(hadolint_container) $(hadolint_command) Dockerfile
 endif
 
-build: 
-	docker buildx build --platform="linux/amd64,linux/arm64" -t abhay900/puppet-agent:latest -f puppet-agent-ubuntu/Dockerfile --push puppet-agent-ubuntu
+build: prep
+	docker pull alpine:$(alpine_version)
+	docker pull ubuntu:$(ubuntu_version)
+	docker buildx build --platform linux/amd64,linux/arm64 --build-arg ubuntu_version=$(ubuntu_version) --build-arg vcs_ref=$(vcs_ref) --build-arg build_date=$(build_date) --build-arg version=$(version) --file puppet-agent-ubuntu/$(dockerfile) --tag $(NAMESPACE)/puppet-agent-ubuntu:$(version) puppet-agent-ubuntu
+	@docker tag $(NAMESPACE)/puppet-agent-ubuntu:$(version) $(NAMESPACE)/puppet-agent:$(version)
+	docker buildx build --platform linux/amd64,linux/arm64 --build-arg alpine_version=$(alpine_version) --build-arg vcs_ref=$(vcs_ref) --build-arg build_date=$(build_date) --build-arg version=$(version) --file puppet-agent-alpine/$(dockerfile) --tag $(NAMESPACE)/puppet-agent-alpine:$(version) $(PWD)/..
+ifeq ($(IS_LATEST),true)
+	@docker tag $(NAMESPACE)/puppet-agent-ubuntu:$(version) $(NAMESPACE)/puppet-agent-ubuntu:$(LATEST_VERSION)
+	@docker tag $(NAMESPACE)/puppet-agent-ubuntu:$(version) $(NAMESPACE)/puppet-agent:$(LATEST_VERSION)
+	@docker tag $(NAMESPACE)/puppet-agent-alpine:$(version) $(NAMESPACE)/puppet-agent-alpine:$(LATEST_VERSION)
+endif
 
 test: prep
 	@bundle install --path $$BUNDLE_PATH --gemfile $$GEMFILE --with test
@@ -43,7 +52,14 @@ test: prep
 	@PUPPET_TEST_DOCKER_IMAGE=$(NAMESPACE)/puppet-agent-alpine:$(version) \
 		bundle exec --gemfile $$GEMFILE rspec spec
 
-publish:
-	docker buildx build --platform="linux/amd64,linux/arm64" -t abhay900/puppet-agent:latest -f puppet-agent-ubuntu/Dockerfile --push .
-	
-.PHONY: lint build publish
+publish: prep
+	@docker push $(NAMESPACE)/puppet-agent-ubuntu:$(version)
+	@docker push $(NAMESPACE)/puppet-agent:$(version)
+	@docker push $(NAMESPACE)/puppet-agent-alpine:$(version)
+ifeq ($(IS_LATEST),true)
+	@docker push $(NAMESPACE)/puppet-agent-ubuntu:$(LATEST_VERSION)
+	@docker push $(NAMESPACE)/puppet-agent:$(LATEST_VERSION)
+	@docker push $(NAMESPACE)/puppet-agent-alpine:$(LATEST_VERSION)
+endif
+
+.PHONY: lint build test publish
