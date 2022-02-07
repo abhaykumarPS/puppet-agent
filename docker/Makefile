@@ -53,7 +53,7 @@ test: prep
 		bundle exec --gemfile $$GEMFILE rspec spec
 
 publish: 
-	docker buildx build --platform linux/amd64,linux/arm64 -t abhay900/puppet-agent-ubuntu:latest --push .
+	docker buildx build --platform linux/amd64,linux/arm64 -t abhay900/puppet-agent-ubuntu:latest --push puppet-agent-ubuntu 
 	docker buildx build --platform linux/amd64,linux/arm64 -t abhay900/puppet-agent:latest --push .
 	docker buildx build --platform linux/amd64,linux/arm64 -t abhay900/puppet-agent-alpine:latest --push .
 
