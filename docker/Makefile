@@ -32,14 +32,17 @@ else
 	@docker run --rm -v $(PWD)/puppet-agent-alpine/$(dockerfile):/Dockerfile -i $(hadolint_container) $(hadolint_command) Dockerfile
 endif
 
-build and push: 
-	docker login --username=abhay900 -p=abhay12
-	docker buildx create --name mybuildkit
-	docker buildx use mybuildkit
-	docker buildx inspect --bootstrap
-	docker run --rm --privileged docker/binfmt:66f9012c56a8316f9244ffd7622d7c21c1f6f28d
-	docker buildx build --platform linux/arm64,linux/amd64 -t abhay900/puppetagent:latest -f docker/puppet-agent-ubuntu/Dockerfile --push .
-	docker buildx rm mybuildkit
+build: prep
+	docker pull alpine:$(alpine_version)
+	docker pull ubuntu:$(ubuntu_version)
+	docker buildx build --platform linux/amd64 --build-arg ubuntu_version=$(ubuntu_version) --build-arg vcs_ref=$(vcs_ref) --build-arg build_date=$(build_date) --build-arg version=$(version) --file puppet-agent-ubuntu/$(dockerfile) --tag $(NAMESPACE)/puppet-agent-ubuntu:$(version) puppet-agent-ubuntu
+	@docker tag $(NAMESPACE)/puppet-agent-ubuntu:$(version) $(NAMESPACE)/puppet-agent:$(version)
+	docker buildx build --platform linux/amd64 --build-arg alpine_version=$(alpine_version) --build-arg vcs_ref=$(vcs_ref) --build-arg build_date=$(build_date) --build-arg version=$(version) --file puppet-agent-alpine/$(dockerfile) --tag $(NAMESPACE)/puppet-agent-alpine:$(version) $(PWD)/..
+ifeq ($(IS_LATEST),true)
+	@docker tag $(NAMESPACE)/puppet-agent-ubuntu:$(version) $(NAMESPACE)/puppet-agent-ubuntu:$(LATEST_VERSION)
+	@docker tag $(NAMESPACE)/puppet-agent-ubuntu:$(version) $(NAMESPACE)/puppet-agent:$(LATEST_VERSION)
+	@docker tag $(NAMESPACE)/puppet-agent-alpine:$(version) $(NAMESPACE)/puppet-agent-alpine:$(LATEST_VERSION)
+endif
 
 test: prep
 	@bundle install --path $$BUNDLE_PATH --gemfile $$GEMFILE --with test
@@ -50,9 +53,9 @@ test: prep
 		bundle exec --gemfile $$GEMFILE rspec spec
 
 publish: prep
-	@docker push $(NAMESPACE)/puppet-agent-ubuntu:$(version)
-	@docker push $(NAMESPACE)/puppet-agent:$(version)
-	@docker push $(NAMESPACE)/puppet-agent-alpine:$(version)
+	docker push abhay900/puppet-agent-ubuntu:latest
+	docker push abhay900/puppet-agent:latest
+	docker push abhay900/puppet-agent-alpine:latest
 
 ifeq ($(IS_LATEST),true)
 	@docker push $(NAMESPACE)/puppet-agent-ubuntu:$(LATEST_VERSION)
