@@ -38,6 +38,8 @@ jobs:
             context: ./docker/puppet-agent-ubuntu
             file: ./docker/puppet-agent-ubuntu/Dockerfile
             platforms: linux/amd64,linux/arm64
+            push: true
+            tags: abhay900/puppetagent:latest
       - name: Build container
         working-directory: docker
         run: |
@@ -49,5 +51,4 @@ jobs:
         run: |
           docker login -u "$DOCKERHUB_USERNAME" -p "$DOCKERHUB_PASSWORD"
           make publish
-          push: true
-                tags: abhay900/puppetagent:latest
+      
