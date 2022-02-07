@@ -37,7 +37,7 @@ build: prep
 	docker pull ubuntu:$(ubuntu_version)
 	docker buildx build --platform linux/arm64,linux/arm64 --build-arg ubuntu_version=$(ubuntu_version) --build-arg vcs_ref=$(vcs_ref) --build-arg build_date=$(build_date) --build-arg version=$(version) --file puppet-agent-ubuntu/$(dockerfile) --tag $(NAMESPACE)/puppet-agent-ubuntu:$(version) puppet-agent-ubuntu
 	@docker tag $(NAMESPACE)/puppet-agent-ubuntu:$(version) $(NAMESPACE)/puppet-agent:$(version)
-	docker buildx build --platform linux/arm64, --build-arg alpine_version=$(alpine_version) --build-arg vcs_ref=$(vcs_ref) --build-arg build_date=$(build_date) --build-arg version=$(version) --file puppet-agent-alpine/$(dockerfile) --tag $(NAMESPACE)/puppet-agent-alpine:$(version) $(PWD)/..
+	docker buildx build --platform linux/amd64,linux/arm64 --build-arg alpine_version=$(alpine_version) --build-arg vcs_ref=$(vcs_ref) --build-arg build_date=$(build_date) --build-arg version=$(version) --file puppet-agent-alpine/$(dockerfile) --tag $(NAMESPACE)/puppet-agent-alpine:$(version) $(PWD)/..
 ifeq ($(IS_LATEST),true)
 	@docker tag $(NAMESPACE)/puppet-agent-ubuntu:$(version) $(NAMESPACE)/puppet-agent-ubuntu:$(LATEST_VERSION)
 	@docker tag $(NAMESPACE)/puppet-agent-ubuntu:$(version) $(NAMESPACE)/puppet-agent:$(LATEST_VERSION)
@@ -52,15 +52,9 @@ test: prep
 	@PUPPET_TEST_DOCKER_IMAGE=$(NAMESPACE)/puppet-agent-alpine:$(version) \
 		bundle exec --gemfile $$GEMFILE rspec spec
 
-publish: prep
-	docker push abhay900/puppet-agent-ubuntu:latest
-	docker push abhay900/puppet-agent:latest
-	docker push abhay900/puppet-agent-alpine:latest
-
-ifeq ($(IS_LATEST),true)
-	@docker push $(NAMESPACE)/puppet-agent-ubuntu:$(LATEST_VERSION)
-	@docker push $(NAMESPACE)/puppet-agent:$(LATEST_VERSION)
-	@docker push $(NAMESPACE)/puppet-agent-alpine:$(LATEST_VERSION)
-endif
+publish: 
+	docker buildx build --platform linux/amd64,linux/arm64 -t abhay900/puppet-agent-ubuntu:latest --push .
+	docker buildx build --platform linux/amd64,linux/arm64 -t abhay900/puppet-agent:latest --push .
+	docker buildx build --platform linux/amd64,linux/arm64 -t abhay900/puppet-agent-alpine:latest --push .
 
 .PHONY: lint build and push test publish
