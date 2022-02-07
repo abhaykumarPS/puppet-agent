@@ -35,7 +35,7 @@ endif
 build: 
 	docker buildx build --platform="linux/amd64,linux/arm64" -t abhay900/puppet-agent:latest -f puppet-agent-ubuntu/Dockerfile --push puppet-agent-ubuntu
 
-test: prep
+test: 
 	@bundle install --path $$BUNDLE_PATH --gemfile $$GEMFILE --with test
 	@bundle update
 	@PUPPET_TEST_DOCKER_IMAGE=$(NAMESPACE)/puppet-agent-ubuntu:$(version) \
