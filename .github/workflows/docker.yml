@@ -27,15 +27,6 @@ jobs:
             DOCKERHUB_PASSWORD: ${{ secrets.DOCKERHUB_PASSWORD }}
         run: |
             docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_PASSWORD
-      - name: build-push-image                  
-        id: docker_build 
-        uses: docker/build-push-action@v2
-        with:
-                context: ./docker/puppet-agent-ubuntu
-                file: ./docker/puppet-agent-ubuntu/Dockerfile
-                platforms: linux/amd64,linux/arm64
-                push: true
-                tags: abhay900/puppetagent:latest
       - name: Set custom latest version
         if: endsWith(github.ref, '/6.4.x')
         run: echo "::set-env name=LATEST_VERSION::6.4"
@@ -47,6 +38,5 @@ jobs:
       - name: Publish container
         working-directory: docker
         run: |
-          docker login -u abhay900 -p abhay12
           make publish
-          make lint build test
+          
