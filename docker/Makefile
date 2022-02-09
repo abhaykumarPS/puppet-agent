@@ -35,9 +35,9 @@ endif
 build: prep
 	docker pull alpine:$(alpine_version)
 	docker pull ubuntu:$(ubuntu_version)
-	docker buildx build --platform linux/arm64,linux/arm64 --build-arg ubuntu_version=$(ubuntu_version) --build-arg vcs_ref=$(vcs_ref) --build-arg build_date=$(build_date) --build-arg version=$(version) --file puppet-agent-ubuntu/$(dockerfile) --tag $(NAMESPACE)/puppet-agent-ubuntu:$(version) puppet-agent-ubuntu
+	docker buildx build --load ${DOCKER_BUILD_FLAGS} --build-arg ubuntu_version=$(ubuntu_version) --build-arg vcs_ref=$(vcs_ref) --build-arg build_date=$(build_date) --build-arg version=$(version) --file puppet-agent-ubuntu/$(dockerfile) --tag $(NAMESPACE)/puppet-agent-ubuntu:$(version) puppet-agent-ubuntu
 	@docker tag $(NAMESPACE)/puppet-agent-ubuntu:$(version) $(NAMESPACE)/puppet-agent:$(version)
-	docker buildx build --platform linux/amd64,linux/arm64 --build-arg alpine_version=$(alpine_version) --build-arg vcs_ref=$(vcs_ref) --build-arg build_date=$(build_date) --build-arg version=$(version) --file puppet-agent-alpine/$(dockerfile) --tag $(NAMESPACE)/puppet-agent-alpine:$(version) $(PWD)/..
+	docker buildx build --load ${DOCKER_BUILD_FLAGS} --build-arg alpine_version=$(alpine_version) --build-arg vcs_ref=$(vcs_ref) --build-arg build_date=$(build_date) --build-arg version=$(version) --file puppet-agent-alpine/$(dockerfile) --tag $(NAMESPACE)/puppet-agent-alpine:$(version) $(PWD)/..
 ifeq ($(IS_LATEST),true)
 	@docker tag $(NAMESPACE)/puppet-agent-ubuntu:$(version) $(NAMESPACE)/puppet-agent-ubuntu:$(LATEST_VERSION)
 	@docker tag $(NAMESPACE)/puppet-agent-ubuntu:$(version) $(NAMESPACE)/puppet-agent:$(LATEST_VERSION)
@@ -53,7 +53,7 @@ test: prep
 		bundle exec --gemfile $$GEMFILE rspec spec
 
 publish: 
-	docker buildx build --platform linux/amd64,linux/arm64 -t abhay900/puppet-agent-ubuntu:7.14.0 --push puppet-agent-ubuntu 
-	docker buildx build --platform linux/amd64,linux/arm64 -t abhay900/puppet-agent-alpine:latest --file docker/puppet-agent-alpine/$(dockerfile) --push puppet-agent-alpine
+	docker buildx build --platform linux/amd64,linux/arm64 -t $(NAMESPACE)/puppet-agent-ubuntu:$(version) -t $(NAMESPACE)/puppet-agent:$(version) --push puppet-agent-ubuntu 
+	
 	
 .PHONY: lint build and push test publish
