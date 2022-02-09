@@ -1,4 +1,4 @@
-NAMESPACE ?= puppet
+NAMESPACE ?= abhay900
 git_describe = $(shell git describe)
 vcs_ref := $(shell git rev-parse HEAD)
 build_date := $(shell date -u +%FT%T)
@@ -52,15 +52,10 @@ test: prep
 	@PUPPET_TEST_DOCKER_IMAGE=$(NAMESPACE)/puppet-agent-alpine:$(version) \
 		bundle exec --gemfile $$GEMFILE rspec spec
 
-publish: prep
-	docker buildx build --platform linux/arm64,linux/amd64 -t abhay900/puppet-agent:latest -f puppet-agent-ubuntu/Dockerfile --push puppet-agent-ubuntu
-	@docker push $(NAMESPACE)/puppet-agent:$(version)
-	docker buildx build --platform linux/arm64,linux/amd64 -t abhay900/puppet-agent:latest -f puppet-agent-ubuntu/Dockerfile --push puppet-agent-alpine
+publish: 
+	docker buildx build --platform linux/arm64,linux/amd64 -t $(NAMESPACE)/puppet-agent-ubuntu:$(LATEST_VERSION) -t $(NAMESPACE)/puppet-agent:$(LATEST_VERSION) --push puppet-agent-ubuntu
+	docker buildx build --platform linux/arm64,linux/amd64 -t $(NAMESPACE)/puppet-agent-alpine:$(LATEST_VERSION) -f puppet-agent-ubuntu/Dockerfile --push $(PWD)/..
 
-ifeq ($(IS_LATEST),true)
-	@docker push $(NAMESPACE)/puppet-agent-ubuntu:$(LATEST_VERSION)
-	@docker push $(NAMESPACE)/puppet-agent:$(LATEST_VERSION)
-	@docker push $(NAMESPACE)/puppet-agent-alpine:$(LATEST_VERSION)
-endif
+
 
 .PHONY: lint build test publish
