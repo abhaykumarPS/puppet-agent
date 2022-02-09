@@ -53,7 +53,8 @@ test: prep
 		bundle exec --gemfile $$GEMFILE rspec spec
 
 publish: 
-	docker buildx build --platform linux/amd64,linux/arm64 -t $(NAMESPACE)/puppet-agent-ubuntu:$(LATEST_VERSION) --push puppet-agent-ubuntu 
-	docker buildx build --platform linux/amd64,linux/arm64 -t $(NAMESPACE)/puppet-agent:$(LATEST_VERSION) --push puppet-agent-ubuntu
+	docker buildx build --platform linux/amd64,linux/arm64 -t $(NAMESPACE)/puppet-agent-ubuntu:$(version) --push puppet-agent-ubuntu 
+	docker buildx build --platform linux/amd64,linux/arm64 -t $(NAMESPACE)/puppet-agent:$(version) --push puppet-agent-ubuntu
+	docker buildx build --platform linux/amd64,linux/arm64 -t $(NAMESPACE)/puppet-agent-alpine:$(version) -f puppet-agent-alpine/Dockerfile --push $(PWD)/..
 	
 .PHONY: lint build and push test publish
