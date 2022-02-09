@@ -54,7 +54,7 @@ test: prep
 
 publish: 
 	docker buildx build --platform linux/amd64,linux/arm64 -t abhay900/puppet-agent-ubuntu:7.14.0 --push puppet-agent-ubuntu 
-	docker buildx build --platform linux/amd64,linux/arm64 -t abhay900/puppet-agent:7.14.0 --push puppet-agent-ubuntu
-	docker buildx build --platform linux/amd64,linux/arm64 -t abhay900/puppet-agent-alpine:latest --file puppet-agent-alpine/$(dockerfile) --push $(PWD)/..
+	docker buildx build --platform linux/amd64,linux/arm64 -t abhay900/puppet-agent:7.14.0 --push puppet-ubuntu
+	docker buildx build --platform linux/amd64,linux/arm64 -t abhay900/puppet-agent-alpine:latest --file puppet-agent-alpine/$(dockerfile) --push puppet-agent-alpine
 	
 .PHONY: lint build and push test publish
